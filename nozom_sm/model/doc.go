@@ -9,6 +9,11 @@ type DocReq struct {
 	TrSerial  int
 	StoreCode int
 }
+type CloseDocReq struct {
+	DevNo     int
+	Trans  int
+	DocNo int
+}
 type OpenDoc struct {
 	DocNo        int
 	StoreCode    int

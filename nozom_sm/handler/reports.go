@@ -171,6 +171,36 @@ func (h *Handler) GetAccount(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, accounts)
 }
+// func (h *Handler) CloseDoc(c echo.Context) error {
+// 	// req := new(model.CloseDocReq)
+// 	// if err := c.Bind(req); err != nil {
+// 	// 	return err
+// 	// }
+// 	// fmt.Println(req)
+// 	// rows, err := h.db.Raw("EXEC CloseSDoc @DevNo = ?, @Trans = ? , @DocNo = ?", req.DevNo, req.Trans , req.DocNo).Rows()
+// 	// defer rows.Close()
+// 	// if err != nil {
+// 	// 	return c.JSON(http.StatusInternalServerError, err)
+// 	// }
+// 	return c.JSON(http.StatusOK, "closed")
+
+
+// }
+func (h *Handler) CloseDoc(c echo.Context) error {
+	req := new(model.CloseDocReq)
+	if err := c.Bind(req); err != nil {
+		return  c.JSON(http.StatusInternalServerError, err)
+	}
+	fmt.Println(req)
+	rows, err := h.db.Raw("EXEC CloseSdDoc @DevNo = ?, @Trans = ? , @DocNo = ?", req.DevNo, req.Trans , req.DocNo).Rows()
+	defer rows.Close()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, "closed")
+
+}
+
 
 func (h *Handler) GetItem(c echo.Context) error {
 

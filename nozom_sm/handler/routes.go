@@ -16,5 +16,6 @@ func (h *Handler) Register(v1 *echo.Group) {
 	v1.POST("/insert-item", h.InsertItem)
 	v1.POST("/delete-item", h.DeleteItem)
 	v1.POST("/get-docs", h.GetOpenDocs)
+	v1.POST("/close-doc", h.CloseDoc)
 
 }
