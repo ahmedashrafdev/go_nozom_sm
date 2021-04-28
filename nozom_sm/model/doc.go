@@ -25,4 +25,5 @@ type OpenDoc struct {
 type OpenDocReq struct {
 	DevNo    int
 	TrSerial int
+	StCode int
 }

@@ -46,7 +46,7 @@ func (h *Handler) GetOpenDocs(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, "ERROR binding request")
 	}
 	var OpenDocs []model.OpenDoc
-	rows, err := h.db.Raw("EXEC GetOpenSdDocNo @DevNo = ?, @TrSerial = ?;", req.DevNo, req.TrSerial).Rows()
+	rows, err := h.db.Raw("EXEC GetOpenSdDocNo @StCode = ?,@DevNo = ?, @TrSerial = ?;", req.StCode , req.DevNo, req.TrSerial).Rows()
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
