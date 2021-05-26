@@ -4,14 +4,15 @@ type Doc struct {
 	DocNo int
 }
 
+//sync
 type DocReq struct {
 	DevNo     int
 	TrSerial  int
 	StoreCode int
 }
 type CloseDocReq struct {
-	DevNo     int
-	Trans  int
+	DevNo int
+	Trans int
 	DocNo int
 }
 type OpenDoc struct {
@@ -25,5 +26,5 @@ type OpenDoc struct {
 type OpenDocReq struct {
 	DevNo    int
 	TrSerial int
-	StCode int
+	StCode   int
 }
