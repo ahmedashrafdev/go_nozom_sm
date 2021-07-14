@@ -73,3 +73,4 @@ Switch to the repo folder
 ```bash
 ➜ go test ./...
 ```
+#v 0.0.1

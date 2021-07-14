@@ -2,7 +2,8 @@ package db
 
 import (
 	"fmt"
-	"github.com/ahmedashrafdev/reports/config"
+	"hand_held/config"
+
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mssql"
 )
