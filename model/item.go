@@ -2,16 +2,20 @@ package model
 
 type GetItemRequest struct {
 	BCode     string `json:"BCode" validate:"required"`
+	Name      string `json:"Name"`
 	StoreCode int    `json:"StoreCode" validate:"required"`
 }
 
 type Item struct {
-	Serial        int
-	ItemName      string
-	MinorPerMajor int
-	POSPP         float64
-	POSTP         float64
-	ByWeight      bool
+	Serial            int
+	ItemName          string
+	MinorPerMajor     int
+	POSPP             float64
+	POSTP             float64
+	ByWeight          bool
+	WithExp           bool
+	ItemHasAntherUnit bool
+	AvrWait           float64
 }
 type InsertItemReq struct {
 	DNo        int
@@ -24,6 +28,7 @@ type InsertItemReq struct {
 	InvNo      int
 	ItmBarCode string
 	DevNo      int
+	ExpDate    string
 }
 
 type DocItemsReq struct {

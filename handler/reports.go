@@ -1,13 +1,12 @@
 package handler
 
 import (
-
 	"fmt"
+	"hand_held/model"
 	"net/http"
-	"github.com/ahmedashrafdev/reports/model"
+
 	"github.com/labstack/echo/v4"
 )
-
 
 func (h *Handler) GetDocNo(c echo.Context) error {
 
@@ -38,7 +37,6 @@ func (h *Handler) GetDocNo(c echo.Context) error {
 	return c.JSON(http.StatusOK, DocNo[0].DocNo+1)
 }
 
-
 func (h *Handler) GetOpenDocs(c echo.Context) error {
 
 	req := new(model.OpenDocReq)
@@ -46,7 +44,7 @@ func (h *Handler) GetOpenDocs(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, "ERROR binding request")
 	}
 	var OpenDocs []model.OpenDoc
-	rows, err := h.db.Raw("EXEC GetOpenSdDocNo @StCode = ?,@DevNo = ?, @TrSerial = ?;", req.StCode , req.DevNo, req.TrSerial).Rows()
+	rows, err := h.db.Raw("EXEC GetOpenSdDocNo @StCode = ?,@DevNo = ?, @TrSerial = ?;", req.StCode, req.DevNo, req.TrSerial).Rows()
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
@@ -120,16 +118,14 @@ func (h *Handler) InsertItem(c echo.Context) error {
 	if err := c.Bind(req); err != nil {
 		return c.JSON(http.StatusBadRequest, "ERROR binding request")
 	}
-	print(req)
 	rows, err := h.db.Raw(
-		"EXEC InsertSdDocNo  @DNo = ? ,@TrS = ? ,@AccS = ? ,@ItmS =?  ,@Qnt = ? ,@StCode = ? ,@InvNo = ? ,@ItmBarCode = ? ,@DevNo = ?,@StCode2 = ?; ", req.DNo, req.TrS, req.AccS, req.ItmS, req.Qnt, req.StCode, req.InvNo, req.ItmBarCode, req.DevNo, req.StCode2).Rows()
+		"EXEC InsertSdDocNo  @DNo = ? ,@TrS = ? ,@AccS = ? ,@ItmS =?  ,@Qnt = ? ,@StCode = ? ,@InvNo = ? ,@ItmBarCode = ? ,@DevNo = ?,@StCode2 = ?,@ExpDate = ?; ", req.DNo, req.TrS, req.AccS, req.ItmS, req.Qnt, req.StCode, req.InvNo, req.ItmBarCode, req.DevNo, req.StCode2, req.ExpDate).Rows()
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err)
+		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, rows)
 }
-
 
 func (h *Handler) CashTryStores(c echo.Context) error {
 	var stores []model.CashtryStores
@@ -171,6 +167,7 @@ func (h *Handler) GetAccount(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, accounts)
 }
+
 // func (h *Handler) CloseDoc(c echo.Context) error {
 // 	// req := new(model.CloseDocReq)
 // 	// if err := c.Bind(req); err != nil {
@@ -184,15 +181,14 @@ func (h *Handler) GetAccount(c echo.Context) error {
 // 	// }
 // 	return c.JSON(http.StatusOK, "closed")
 
-
 // }
 func (h *Handler) CloseDoc(c echo.Context) error {
 	req := new(model.CloseDocReq)
 	if err := c.Bind(req); err != nil {
-		return  c.JSON(http.StatusInternalServerError, err)
+		return c.JSON(http.StatusInternalServerError, err)
 	}
 	fmt.Println(req)
-	rows, err := h.db.Raw("EXEC CloseSdDoc @DevNo = ?, @Trans = ? , @DocNo = ?", req.DevNo, req.Trans , req.DocNo).Rows()
+	rows, err := h.db.Raw("EXEC CloseSdDoc @DevNo = ?, @Trans = ? , @DocNo = ?", req.DevNo, req.Trans, req.DocNo).Rows()
 	defer rows.Close()
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
@@ -201,30 +197,29 @@ func (h *Handler) CloseDoc(c echo.Context) error {
 
 }
 
-
 func (h *Handler) GetItem(c echo.Context) error {
 
 	req := new(model.GetItemRequest)
 	if err := c.Bind(req); err != nil {
-		return err
+		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
+	fmt.Println("req")
 	fmt.Println(req)
 
 	var items []model.Item
-	rows, err := h.db.Raw("EXEC GetItemData @BCode = ?, @StoreCode = ?", req.BCode, req.StoreCode).Rows()
+	rows, err := h.db.Raw("EXEC GetItemData @BCode = ?, @StoreCode = ? ", req.BCode, req.StoreCode).Rows()
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err)
+		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var item model.Item
-		err = rows.Scan(&item.Serial, &item.ItemName, &item.MinorPerMajor, &item.POSPP, &item.POSTP, &item.ByWeight)
+		err = rows.Scan(&item.Serial, &item.ItemName, &item.MinorPerMajor, &item.POSPP, &item.POSTP, &item.ByWeight, &item.WithExp, &item.ItemHasAntherUnit, &item.AvrWait)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, err)
+			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
 		items = append(items, item)
 	}
 
 	return c.JSON(http.StatusOK, items)
 }
-
