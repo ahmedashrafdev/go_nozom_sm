@@ -16,6 +16,7 @@ type Item struct {
 	WithExp           bool
 	ItemHasAntherUnit bool
 	AvrWait           float64
+	Expirey           string
 }
 type InsertItemReq struct {
 	DNo        int

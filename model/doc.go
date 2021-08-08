@@ -3,8 +3,39 @@ package model
 type Doc struct {
 	DocNo int
 }
+type InvReq struct {
+	BCode string
+}
+type UpdatePrepareReq struct {
+	QPrep   float64
+	ISerial int
+	HSerial int
+}
+type UpdatePrepareResp struct {
+	Prepared    bool
+	QntPrepared float64
+	Qnt         float64
+}
 
-//sync
+type InvoiceItem struct {
+	BonSer        string
+	Qnt           float64
+	Price         float64
+	IsPrepared    bool
+	QntPrepare    float64
+	ItemCode      string
+	GroupCode     string
+	MinorPerMajor int
+	ItemName      string
+	ItemSerial    string
+}
+
+type PrepareDocResp struct {
+	DocNo   string
+	AccName string
+	AccCode int
+}
+
 type DocReq struct {
 	DevNo     int
 	TrSerial  int
@@ -15,6 +46,14 @@ type CloseDocReq struct {
 	Trans int
 	DocNo int
 }
+type ClosePrepareDocReq struct {
+	HSerial int
+	EmpCode int
+}
+type ClosePrepareDocResp struct {
+	Close bool
+}
+
 type OpenDoc struct {
 	DocNo        int
 	StoreCode    int

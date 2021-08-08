@@ -67,6 +67,29 @@ func (h *Handler) GetOpenDocs(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, OpenDocs)
 }
+
+func (h *Handler) GetOpenPrepareDocs(c echo.Context) error {
+	var OpenDocs []model.PrepareDocResp
+	rows, err := h.db.Raw("EXEC GetOpenPrepare;").Rows()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var openDoc model.PrepareDocResp
+		err = rows.Scan(
+			&openDoc.DocNo,
+			&openDoc.AccName,
+			&openDoc.AccCode,
+		)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+		OpenDocs = append(OpenDocs, openDoc)
+	}
+
+	return c.JSON(http.StatusOK, OpenDocs)
+}
 func (h *Handler) GetDocItems(c echo.Context) error {
 
 	req := new(model.DocItemsReq)
@@ -118,13 +141,76 @@ func (h *Handler) InsertItem(c echo.Context) error {
 	if err := c.Bind(req); err != nil {
 		return c.JSON(http.StatusBadRequest, "ERROR binding request")
 	}
-	rows, err := h.db.Raw(
+	print(req)
+	_, err := h.db.Raw(
 		"EXEC InsertSdDocNo  @DNo = ? ,@TrS = ? ,@AccS = ? ,@ItmS =?  ,@Qnt = ? ,@StCode = ? ,@InvNo = ? ,@ItmBarCode = ? ,@DevNo = ?,@StCode2 = ?,@ExpDate = ?; ", req.DNo, req.TrS, req.AccS, req.ItmS, req.Qnt, req.StCode, req.InvNo, req.ItmBarCode, req.DevNo, req.StCode2, req.ExpDate).Rows()
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, rows)
+	return c.JSON(http.StatusOK, "inserted")
+}
+
+func (h *Handler) InsertPrepareItem(c echo.Context) error {
+	print("asd")
+	req := new(model.UpdatePrepareReq)
+	if err := c.Bind(req); err != nil {
+		return c.JSON(http.StatusBadRequest, "ERROR binding request")
+	}
+	print(req)
+	rows, err := h.db.Raw(
+		"EXEC UpdatePrepare  @QPrep = ? ,@ISerial = ? ,@HSerial = ? ;", req.QPrep, req.ISerial, req.HSerial).Rows()
+	if err != nil {
+		print(err.Error())
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	defer rows.Close()
+	var resp []model.UpdatePrepareResp
+	var item model.UpdatePrepareResp
+	for rows.Next() {
+		err = rows.Scan(
+			&item.Prepared,
+			&item.QntPrepared,
+			&item.Qnt,
+		)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, "can't scan the values")
+		}
+		resp = append(resp, item)
+	}
+
+	return c.JSON(http.StatusOK, resp)
+}
+
+func (h *Handler) ClosePrepareDoc(c echo.Context) error {
+	req := new(model.ClosePrepareDocReq)
+	if err := c.Bind(req); err != nil {
+		fmt.Println("err1")
+		fmt.Println(err)
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+
+	rows, err := h.db.Raw("EXEC ChkPrepare @HSerial = ?, @EmpCode = ?", req.HSerial, req.EmpCode).Rows()
+	fmt.Println("err2")
+	fmt.Println(err)
+	defer rows.Close()
+	var resp []model.ClosePrepareDocResp
+
+	for rows.Next() {
+		var res model.ClosePrepareDocResp
+		err = rows.Scan(&res.Close)
+		fmt.Println("err3")
+		fmt.Println(err)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, "can't scan the values")
+		}
+		resp = append(resp, res)
+	}
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, resp)
+
 }
 
 func (h *Handler) CashTryStores(c echo.Context) error {
@@ -214,7 +300,59 @@ func (h *Handler) GetItem(c echo.Context) error {
 	defer rows.Close()
 	for rows.Next() {
 		var item model.Item
-		err = rows.Scan(&item.Serial, &item.ItemName, &item.MinorPerMajor, &item.POSPP, &item.POSTP, &item.ByWeight, &item.WithExp, &item.ItemHasAntherUnit, &item.AvrWait)
+		err = rows.Scan(&item.Serial, &item.ItemName, &item.MinorPerMajor, &item.POSPP, &item.POSTP, &item.ByWeight, &item.WithExp, &item.ItemHasAntherUnit, &item.AvrWait, &item.Expirey)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+		items = append(items, item)
+	}
+
+	return c.JSON(http.StatusOK, items)
+}
+
+func (h *Handler) GetEmp(c echo.Context) error {
+	type Req struct {
+		EmpCode int
+	}
+	req := new(model.EmpReq)
+	if err := c.Bind(req); err != nil {
+		return err
+	}
+	fmt.Println(req.EmpCode)
+
+	var employee []model.Emp
+	rows, err := h.db.Raw("EXEC GetEmp @EmpCode = ?", req.EmpCode).Rows()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item model.Emp
+		err = rows.Scan(&item.EmpName, &item.EmpPassword, &item.EmpCode)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+		employee = append(employee, item)
+	}
+
+	return c.JSON(http.StatusOK, employee)
+}
+
+func (h *Handler) GetPrepareDoc(c echo.Context) error {
+	req := new(model.InvReq)
+	if err := c.Bind(req); err != nil {
+		return err
+	}
+
+	var items []model.InvoiceItem
+	rows, err := h.db.Raw("EXEC GetPrepareDoc @BCode  = ?", req.BCode).Rows()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item model.InvoiceItem
+		err = rows.Scan(&item.BonSer, &item.Qnt, &item.Price, &item.IsPrepared, &item.QntPrepare, &item.ItemCode, &item.GroupCode, &item.MinorPerMajor, &item.ItemName, &item.ItemSerial)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
