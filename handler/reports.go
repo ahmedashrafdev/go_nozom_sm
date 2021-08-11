@@ -157,7 +157,6 @@ func (h *Handler) InsertPrepareItem(c echo.Context) error {
 	if err := c.Bind(req); err != nil {
 		return c.JSON(http.StatusBadRequest, "ERROR binding request")
 	}
-	print(req)
 	rows, err := h.db.Raw(
 		"EXEC UpdatePrepare  @QPrep = ? ,@ISerial = ? ,@HSerial = ? ;", req.QPrep, req.ISerial, req.HSerial).Rows()
 	if err != nil {
@@ -293,7 +292,7 @@ func (h *Handler) GetItem(c echo.Context) error {
 	fmt.Println(req)
 
 	var items []model.Item
-	rows, err := h.db.Raw("EXEC GetItemData @BCode = ?, @StoreCode = ? ", req.BCode, req.StoreCode).Rows()
+	rows, err := h.db.Raw("EXEC GetItemData @BCode = ?, @StoreCode = ? , @Name = ?; ", req.BCode, req.StoreCode, req.Name).Rows()
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
