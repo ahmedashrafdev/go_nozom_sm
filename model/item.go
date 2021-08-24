@@ -30,6 +30,7 @@ type InsertItemReq struct {
 	ItmBarCode string
 	DevNo      int
 	ExpDate    string
+	SessionNo  int
 }
 
 type DocItemsReq struct {

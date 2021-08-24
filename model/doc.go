@@ -10,11 +10,18 @@ type UpdatePrepareReq struct {
 	QPrep   float64
 	ISerial int
 	HSerial int
+	EmpCode int
 }
 type UpdatePrepareResp struct {
 	Prepared    bool
 	QntPrepared float64
 	Qnt         float64
+}
+type InventorySessionReq struct {
+	StoreCode int
+}
+type InventorySessionResp struct {
+	SessionNo int
 }
 
 type InvoiceItem struct {
@@ -31,9 +38,9 @@ type InvoiceItem struct {
 }
 
 type PrepareDocResp struct {
-	DocNo   string
-	AccName string
-	AccCode int
+	DocNo       string
+	AccountName string
+	AccountCode int
 }
 
 type DocReq struct {
@@ -61,6 +68,7 @@ type OpenDoc struct {
 	TransSerial  int
 	AccountName  string
 	AccountCode  int
+	DevNo        int
 }
 type OpenDocReq struct {
 	DevNo    int

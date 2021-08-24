@@ -9,10 +9,11 @@ func (h *Handler) Register(v1 *echo.Group) {
 	cashtry := v1.Group("/cashtry")
 	cashtry.GET("/stores", h.CashTryStores)
 	v1.GET("/employee", h.GetEmp)
+	v1.POST("/invenetory", h.InventorySession)
 	v1.GET("/invoice", h.GetPrepareDoc)
 	v1.GET("/invoice/open", h.GetOpenPrepareDocs)
 	v1.POST("/invoice/close", h.ClosePrepareDoc)
-	v1.POST("/invoice", h.InsertPrepareItem)
+	v1.POST("/invoice", h.UpdatePrepareItem)
 	v1.POST("/get-account", h.GetAccount)
 	v1.POST("/get-item", h.GetItem) // done
 	v1.POST("/get-doc", h.GetDocNo)
@@ -21,5 +22,10 @@ func (h *Handler) Register(v1 *echo.Group) {
 	v1.POST("/delete-item", h.DeleteItem)
 	v1.POST("/get-docs", h.GetOpenDocs)
 	v1.POST("/close-doc", h.CloseDoc)
+
+	// order
+	v1.POST("/orders", h.InsertOrder)
+	v1.POST("/orders/item", h.InsertOrderItem)
+	v1.GET("/orders/items", h.GetOrderItems)
 
 }
