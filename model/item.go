@@ -18,6 +18,13 @@ type Item struct {
 	AvrWait           float64
 	Expirey           string
 }
+type ItemInInvReq struct {
+	ItemSerial int
+	BonSerial  int
+}
+type ItemInInvResp struct {
+	Found int8
+}
 type InsertItemReq struct {
 	DNo        int
 	TrS        int

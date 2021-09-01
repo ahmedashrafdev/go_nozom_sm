@@ -11,9 +11,12 @@ func (h *Handler) Register(v1 *echo.Group) {
 	v1.GET("/employee", h.GetEmp)
 	v1.POST("/invenetory", h.InventorySession)
 	v1.GET("/invoice", h.GetPrepareDoc)
+	v1.GET("/invoice/item", h.IsItemInInvoice)
 	v1.GET("/invoice/open", h.GetOpenPrepareDocs)
 	v1.POST("/invoice/close", h.ClosePrepareDoc)
 	v1.POST("/invoice", h.UpdatePrepareItem)
+	v1.GET("/msgs", h.GetMsgs)
+	v1.PUT("/msgs/read", h.ReadMsgs)
 	v1.POST("/get-account", h.GetAccount)
 	v1.POST("/get-item", h.GetItem) // done
 	v1.POST("/get-doc", h.GetDocNo)

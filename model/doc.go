@@ -12,6 +12,11 @@ type UpdatePrepareReq struct {
 	HSerial int
 	EmpCode int
 }
+type GetMsgsRequest struct {
+	EmpSerial int
+	BonSerial int
+}
+
 type UpdatePrepareResp struct {
 	Prepared    bool
 	QntPrepared float64

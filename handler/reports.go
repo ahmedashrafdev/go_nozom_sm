@@ -122,7 +122,7 @@ func (h *Handler) InsertOrderItem(c echo.Context) error {
 	if err := c.Bind(req); err != nil {
 		return err
 	}
-	fmt.Println(req)
+	// fmt.Println(req)
 	_, err := h.db.Raw("EXEC InsertTr06 @HeadSerial = ?, @ItemSerial = ? , @Qnt = ? , @Price = ?", req.HeadSerial, req.ItemSerial, req.Qnt, req.Price).Rows()
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
@@ -383,10 +383,83 @@ func (h *Handler) GetItem(c echo.Context) error {
 	return c.JSON(http.StatusOK, items)
 }
 
-func (h *Handler) GetEmp(c echo.Context) error {
-	type Req struct {
-		EmpCode int
+func (h *Handler) GetMsgs(c echo.Context) error {
+
+	req := new(model.GetMsgsRequest)
+	if err := c.Bind(req); err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
+
+	var msgs []string
+	var rows *sql.Rows
+	var err error
+	rows, err = h.db.Raw("EXEC GetMsgs @EmpSerial = ?, @BonSerial = ? ", req.EmpSerial, req.BonSerial).Rows()
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var msg string
+		err = rows.Scan(&msg)
+		if err != nil {
+			fmt.Println("Err2")
+			fmt.Println(err.Error())
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+		msgs = append(msgs, msg)
+	}
+
+	return c.JSON(http.StatusOK, msgs)
+}
+
+func (h *Handler) ReadMsgs(c echo.Context) error {
+
+	req := new(model.GetMsgsRequest)
+	if err := c.Bind(req); err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	var rows *sql.Rows
+	var err error
+	rows, err = h.db.Raw("EXEC ReadMsgs @EmpSerial = ?, @BonSerial = ? ", req.EmpSerial, req.BonSerial).Rows()
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	defer rows.Close()
+
+	return c.JSON(http.StatusOK, "updated")
+}
+func (h *Handler) IsItemInInvoice(c echo.Context) error {
+
+	req := new(model.ItemInInvReq)
+	if err := c.Bind(req); err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	var err error
+	resp := new(model.ItemInInvResp)
+
+	rows := h.db.Raw("EXEC IsItemInInvoice @ItemSerial = ?, @BonSerial = ? ", req.ItemSerial, req.BonSerial).Row()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	fmt.Println("row")
+	fmt.Println(rows)
+
+	err = rows.Scan(&resp.Found)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, resp)
+
+	// return c.JSON(http.StatusInternalServerError, "error")
+
+}
+
+func (h *Handler) GetEmp(c echo.Context) error {
 	req := new(model.EmpReq)
 	if err := c.Bind(req); err != nil {
 		return err
